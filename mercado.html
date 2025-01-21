@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criptomoedas em tempo real</title>
+    <link rel='shorcut icon' href="resources/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="resources/css/styles.css?v=<?= time() ?>"> 
+    <link rel="stylesheet" href="resources/css/mercado.css?v=<?= time() ?>">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo">
+            <img src="resources/img/logo.png" alt="">
+        </a>
+        <div class="nav-links">
+            <a href="/">Ínicio</a>
+            <a href="">Últimas Notícias</a>
+            <a href="mercado.html">Mercado</a>
+        </div>
+    </nav>
+    <div class="containerCripto">
+        <div class="header">
+            <h2>Mercado de Criptomoedas</h2>
+            <div>Atualização em tempo real</div>
+        </div>
+        <div id="cryptoGrid" class="crypto-grid">
+            <div class="loading">Conectando ao servidor...</div>
+        </div>
+    </div>
+
+    <script>
+        const TRADING_PAIRS = [
+            'BTCUSDT',
+            'ETHUSDT',
+            'BNBUSDT',
+            'ADAUSDT',
+            'SOLUSDT',
+            'XRPUSDT',
+            'LTCUSDT',
+            'DOTUSDT',
+            'LINKUSDT',
+            'MATICUSDT',
+            'AVAXUSDT',
+            'DOGEUSDT',
+            'SHIBUSDT',
+            'TRXUSDT',
+            'BCHUSDT',
+            'ETCUSDT',
+            'FILUSDT',
+            'VETUSDT',
+            'ALGOUSDT',
+            'ICPUSDT',
+            'FTMUSDT',
+            'SANDUSDT',
+            'AAVEUSDT',
+            'CRVUSDT',
+            'XLMUSDT',
+            'ZRXUSDT',
+            'BATUSDT',
+            'HBARUSDT',
+            'NEARUSDT',
+            'KSMUSDT',
+            'QTUMUSDT'
+        ];
+
+        const cryptoData = {};
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(price);
+        }
+
+        function formatChange(change) {
+            return change > 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`;
+        }
+
+        function updateUI() {
+            const grid = document.getElementById('cryptoGrid');
+            grid.innerHTML = '';
+
+            TRADING_PAIRS.forEach(symbol => {
+                const data = cryptoData[symbol];
+                if (!data) return;
+
+                const card = document.createElement('div');
+                card.className = 'crypto-card';
+                
+                const changeClass = data.priceChange >= 0 ? 'change-positive' : 'change-negative';
+                
+                card.innerHTML = `
+    <a href="detalhes.html?symbol=${symbol}" class="crypto-card-link" target="_blank">
+        <div class="crypto-name">
+            ${symbol.replace('USDT', '')}
+            <span class="symbol">USDT</span>
+        </div>
+        <div class="price">${formatPrice(data.lastPrice)}</div>
+        <div class="${changeClass}">
+            ${formatChange(data.priceChange)}
+        </div>
+        <div class="stats">
+            <div>Volume: ${formatPrice(data.volume)}</div>
+            <div>High: ${formatPrice(data.high)}</div>
+            <div>Low: ${formatPrice(data.low)}</div>
+            <div>Trades: ${data.trades.toLocaleString()}</div>
+        </div>
+    </a>
+`;
+
+                grid.appendChild(card);
+            });
+        }
+
+        async function initializeData() {
+            try {
+                const response = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const data = await response.json();
+                
+                data.forEach(ticker => {
+                    if (TRADING_PAIRS.includes(ticker.symbol)) {
+                        cryptoData[ticker.symbol] = {
+                            lastPrice: parseFloat(ticker.lastPrice),
+                            priceChange: parseFloat(ticker.priceChangePercent),
+                            volume: parseFloat(ticker.volume),
+                            high: parseFloat(ticker.highPrice),
+                            low: parseFloat(ticker.lowPrice),
+                            trades: parseInt(ticker.count)
+                        };
+                    }
+                });
+
+                updateUI();
+                initializeWebSocket();
+
+            } catch (error) {
+                console.error('Erro ao carregar dados iniciais:', error);
+                document.getElementById('cryptoGrid').innerHTML = `
+                    <div class="error">
+                        Erro ao carregar dados. Por favor, recarregue a página.
+                    </div>
+                `;
+            }
+        }
+
+        function initializeWebSocket() {
+            const streams = TRADING_PAIRS.map(symbol => 
+                `${symbol.toLowerCase()}@ticker`
+            ).join('/');
+
+            const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streams}`);
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const symbol = data.s;
+
+                if (TRADING_PAIRS.includes(symbol)) {
+                    cryptoData[symbol] = {
+                        lastPrice: parseFloat(data.c),
+                        priceChange: parseFloat(data.P),
+                        volume: parseFloat(data.v),
+                        high: parseFloat(data.h),
+                        low: parseFloat(data.l),
+                        trades: parseInt(data.n)
+                    };
+
+                    updateUI();
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket connection closed. Attempting to reconnect...');
+                setTimeout(initializeWebSocket, 5000);
+            };
+        }
+
+        initializeData();
+    </script>
+</body>
+</html>
