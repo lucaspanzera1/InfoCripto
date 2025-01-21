@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícias de Criptomoedas</title>
+    <link rel="stylesheet" href="resources/css/news.css">
+    <link rel='shorcut icon' href="resources/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="resources/css/styles.css?v=<?= time() ?>">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo">
+            <img src="resources/img/logo.png" alt="">
+        </a>
+        <div class="nav-links">
+            <a href="/">Ínicio</a>
+            <a href="news.html">Últimas Notícias</a>
+            <a href="mercado.html">Mercado</a>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+    </nav>
+
+    <div class="news-container">
+        <div class="header">
+            <h1>Últimas Notícias sobre Criptomoedas</h1>
+        </div>
+        <div id="news-container"></div>
+        <div class="loading" id="loading">Carregando...</div>
+        <div class="error" id="error" style="display: none;">Erro ao carregar notícias.</div>
+    </div>
+
+    <script>
+        const apiKey = 'e83185db30854df4b164fb6e3bacfb06'; // Substitua pela sua chave de API
+        const fromDate = '2025-01-30'; // Data inicial
+        const toDate = '2025-01-01'; // Data final
+const url = `https://newsapi.org/v2/everything?q=criptomoeda&from=${fromDate}&to=${toDate}&sortBy=publishedAt&apiKey=${apiKey}`;
+
+fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        const newsContainer = document.getElementById('news-container');
+        data.articles.forEach(article => {
+            const newsItem = document.createElement('div');
+            newsItem.classList.add('news-item');
+            newsItem.innerHTML = `
+                <h2><a href="${article.url}" target="_blank">${article.title}</a></h2>
+                <p>${article.description}</p>
+                <p><strong>Fonte:</strong> ${article.source.name}</p>
+                <p><strong>Data:</strong> ${new Date(article.publishedAt).toLocaleDateString()}</p>
+            `;
+            newsContainer.appendChild(newsItem);
+        });
+    })
+    .catch(error => {
+        console.error('Erro ao buscar notícias:', error);
+    });
+    </script>
+    <script src="resources/js/hamburguer.js"></script>
+</body>
+</html>
