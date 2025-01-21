@@ -26,7 +26,14 @@
         <div id="cryptoInfo" class="crypto-info">
             <div class="loading">Carregando informações...</div>
         </div>
-        <canvas id="priceChart" width="400" height="200"></canvas>
+        <div id="priceChart">
+            <div class="chart-title">Histórico de Preços</div>
+            <canvas id="chartCanvas"></canvas>
+            <div class="chart-legend">
+                <div><span></span><strong>Preço (USDT)</strong></div>
+            </div>
+        </div>
+        </div>
     </div>
 
     <script>
@@ -74,7 +81,7 @@
                 const data = await response.json();
                 const prices = data.map(item => ({
                     time: new Date(item[0]),
-                    price: parseFloat(item[4]) // Preço de fechamento
+                    price: parseFloat(item[4])
                 }));
 
                 renderChart(prices);
@@ -84,41 +91,75 @@
         }
 
         function renderChart(prices) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            const labels = prices.map(p => p.time.toLocaleString());
-            const priceData = prices.map(p => p.price);
+    const ctx = document.getElementById('chartCanvas').getContext('2d');
+    const labels = prices.map(p => p.time.toLocaleString());
+    const priceData = prices.map(p => p.price);
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Preço',
-                        data: priceData,
-                        borderColor: 'rgba(91, 97, 244, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Preço (USDT)',
+                data: priceData,
+                borderColor: 'rgba(91, 97, 244, 1)',
+                backgroundColor: 'rgba(91, 97, 244, 0.2)', 
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                pointBorderColor: 'rgba(91, 97, 244, 1)', 
+                pointRadius: 4, 
+                pointHoverRadius: 6,
+                fill: true 
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Hora',
+                        color: '#ffffff',
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                    },
+                    ticks: {
+                        color: '#ffffff',
+                    }
                 },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Hora'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Preço (USDT)'
-                            }
-                        }
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Preço (USDT)',
+                        color: '#ffffff',
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)',
+                    },
+                    ticks: {
+                        color: '#ffffff',
                     }
                 }
-            });
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff',
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: 'rgba(91, 97, 244, 1)',
+                    borderWidth: 1,
+                }
+            }
         }
+    });
+}
 
         function formatPrice(price) {
             return new Intl.NumberFormat('en-US', {
