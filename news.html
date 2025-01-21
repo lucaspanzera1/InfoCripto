@@ -38,32 +38,47 @@
 
     <script>
         const apiKey = 'e83185db30854df4b164fb6e3bacfb06'; 
-        const fromDate = '2025-01-01'; 
-        const toDate = '2025-01-30';
-const url = `https://newsapi.org/v2/everything?q=criptomoeda&from=${fromDate}&to=${toDate}&sortBy=publishedAt&apiKey=${apiKey}`;
+        const fromDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; 
+const toDate = new Date().toISOString().split('T')[0];
 
-fetch(url)
-    .then(response => {
-        console.log('Status da resposta:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        const newsContainer = document.getElementById('news-container');
+const url = `https://newsapi.org/v2/everything?q=crypto OR bitcoin OR ethereum&language=pt&from=${fromDate}&to=${toDate}&sortBy=publishedAt&apiKey=${apiKey}`;
+fetch(url, {
+    headers: {
+        'User-Agent': 'YourAppName/1.0'
+    }
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+})
+.then(data => {
+    const newsContainer = document.getElementById('news-container');
+    newsContainer.innerHTML = ''; // Limpa container antes
+
+    if (data.articles && data.articles.length > 0) {
         data.articles.forEach(article => {
             const newsItem = document.createElement('div');
             newsItem.classList.add('news-item');
             newsItem.innerHTML = `
-                <h2><a href="${article.url}" target="_blank">${article.title}</a></h2>
-                <p>${article.description}</p>
-                <p><strong>Fonte:</strong> ${article.source.name}</p>
-                <p><strong>Data:</strong> ${new Date(article.publishedAt).toLocaleDateString()}</p>
+                <h2><a href="${article.url}" target="_blank">${article.title || 'Sem título'}</a></h2>
+                <p>${article.description || 'Sem descrição'}</p>
+                <p><strong>Fonte:</strong> ${article.source?.name || 'Desconhecida'}</p>
+                <p><strong>Data:</strong> ${article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Data não disponível'}</p>
             `;
             newsContainer.appendChild(newsItem);
         });
-    })
-    .catch(error => {
-        console.error('Erro ao buscar notícias:', error);
-    });
+    } else {
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Nenhuma notícia encontrada';
+    }
+})
+.catch(error => {
+    console.error('Erro ao buscar notícias:', error);
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('loading').style.display = 'none';
+});
     </script>
     <script src="resources/js/hamburguer.js"></script>
 </body>
