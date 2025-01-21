@@ -1,0 +1,91 @@
+.container {
+    min-height: 40vh;
+    background-color: #0a051e; /* Cor de fundo da sua página */
+    padding: 2rem; /* Adicionando um pouco de espaçamento */
+    border-radius: 10px; /* Bordas arredondadas */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidade */
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1.5rem;
+}
+
+.tab {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.tab.active {
+    background-color: #5b61f4; /* Cor do botão ativo */
+    color: white;
+}
+
+.tab.inactive {
+    background-color: transparent;
+    color: white;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group span {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: white; /* Cor do texto */
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #5b61f4; /* Borda azul */
+    border-radius: 5px;
+    background-color: #0a051e; /* Cor de fundo do input */
+    color: white; /* Cor do texto do input */
+}
+
+input[type="number"]::placeholder {
+    color: rgba(255, 255, 255, 0.7); /* Cor do placeholder */
+}
+
+.currency {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem;
+    border: 2px solid #5b61f4; /* Borda azul */
+    border-radius: 5px;
+    background-color: #0a051e; /* Cor de fundo */
+    color: white; /* Cor do texto */
+    cursor: pointer;
+}
+
+.amount {
+    padding: 0.8rem;
+    border: 2px solid #5b61f4; /* Borda azul */
+    border-radius: 5px;
+    background-color: #0a051e; /* Cor de fundo */
+    color: white; /* Cor do texto */
+}
+
+.buy-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    background-color: #5b61f4; /* Cor do botão */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.buy-button:hover {
+    background-color: #4347d9; /* Cor do botão ao passar o mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(91, 97, 244, 0.3);
+}
