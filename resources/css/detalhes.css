@@ -73,19 +73,19 @@
     }
 }
 #priceChart {
-    background-color: #1e1e2f; /* Fundo escuro */
+    background-color: #1e1e2f; 
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Borda sutil */
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 20px;
-    height: 400px; /* Altura fixa */
+    height: 400px;
     width: 100%;
-    position: relative; /* Para garantir que o gráfico se posicione corretamente */
+    position: relative;
 }
 
 .chart-title {
     text-align: center;
-    color: #ffffff; /* Texto branco */
-    font-size: 1.8em; /* Tamanho maior para o título */
+    color: #ffffff;
+    font-size: 1.8em;
     margin-bottom: 15px;
 }
 
@@ -97,14 +97,14 @@
 
 .chart-legend div {
     margin: 0 10px;
-    color: rgba(255, 255, 255, 0.8); /* Texto sutil */
-    font-size: 0.9em; /* Tamanho de fonte menor */
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9em;
 }
 
 .chart-legend div span {
     display: inline-block;
     width: 10px;
     height: 10px;
-    background-color: rgba(91, 97, 244, 1); /* Cor do gráfico */
+    background-color: rgba(91, 97, 244, 1);
     margin-right: 5px;
 }
