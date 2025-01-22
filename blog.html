@@ -31,18 +31,21 @@
     </nav>
 
     <section>
-                <div class="ceo-container">
-                    <div class="ceo-info">
-                        <img src="resources/img/pfp.png" alt="Sua Foto" class="ceo-photo">
-                        <div class="ceo-details">
-                            <h2>Lucas Panzera</h2>
-                            <p>Desenvolvedor do <label>Info</label><b>Cripto</b></p>
-                        </div>
-                    </div>
-                    <div class="ceo-message">
-                        <p>Olá! Eu desenvolvi este projeto após começar a me interessar pelo mundo das criptomoedas. Este espaço é para você, visitante, conversar sobre o tema ou deixar dicas do que posso adicionar no meu website. Sinta-se à vontade para compartilhar suas ideias!</p>
-                    </div>
-                </div>
+         <div class="ceo-container custom-glow-wrapper">
+        <div class="custom-glow-border-container">
+            <div class="custom-glow-border-animation"></div>
+        </div>
+        <div class="ceo-info">
+            <img src="resources/img/pfp.png" alt="Sua Foto" class="ceo-photo">
+            <div class="ceo-details">
+                <h2 style="color: white;">Lucas Panzera</h2>
+                <p style="color: white;">Desenvolvedor do <label>Info</label><b>Cripto</b></p>
+            </div>
+        </div>
+        <div class="ceo-message">
+            <p>Olá! Eu desenvolvi este projeto após começar a me interessar pelo mundo das criptomoedas. Este espaço é para você, visitante, conversar sobre o tema ou deixar dicas do que posso adicionar no meu website. Sinta-se à vontade para compartilhar suas ideias!</p>
+        </div>
+    </div>
 
 
         <div class="blog-container">
@@ -221,7 +224,6 @@ document.addEventListener('submit', async (event) => {
         event.preventDefault();
         const postId = event.target.getAttribute('data-post-id');
         
-        // Acessando os campos de entrada de forma mais robusta
         const nameInput = event.target.querySelector('input[placeholder="Seu nome"]');
         const commentInput = event.target.querySelector('input[placeholder="Seu comentário"]');
         

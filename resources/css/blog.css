@@ -12,6 +12,54 @@ section{
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
+.custom-glow-wrapper {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+.custom-glow-border-container {
+    position: absolute;
+    inset: 0;
+    padding: 2px; /* Espessura da borda */
+    border-radius: 10px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+.custom-glow-border-animation {
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+        from 180deg at 50% 50%,
+        #4F46E5 0deg,
+        #34D399 72deg,
+        #3B82F6 144deg,
+        #8B5CF6 216deg,
+        #EC4899 288deg,
+        #4F46E5 360deg
+    );
+    animation: glowRotate 4s linear infinite;
+}
+
+@keyframes glowRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .ceo-container {
     max-width: 800px;
     margin: 0 auto;
@@ -161,6 +209,37 @@ section{
 .comments-list div {
     margin-bottom: 5px;
     color: rgba(255, 255, 255, 0.8);
+}
+
+.comments-toggle-button{
+    background-color: transparent;
+    border-style: none;
+    color: #34D399;
+    text-decoration: underline;
+    cursor: pointer;
+}
+h3{
+    color: #00f7bf;
+    font-weight: 200;
+}
+input {
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(91, 97, 244, 0.8);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: rgba(91, 97, 244, 1);
 }
 
 .toggle-comments {
