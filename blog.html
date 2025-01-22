@@ -66,7 +66,7 @@
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtbGJodHV2eWNyZ2Z6b29ud3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1MDgzODYsImV4cCI6MjA1MzA4NDM4Nn0.zMLUjlZTIeUcltZXe2GHYXkwT5qJah_A1GmRzuF9t7A'
         );
 
-const postForm = document.getElementById('postForm');
+        const postForm = document.getElementById('postForm');
 const postsList = document.getElementById('postsList');
 const alertSuccess = document.getElementById('alertSuccess');
 const alertError = document.getElementById('alertError');
@@ -108,43 +108,41 @@ function createPostElement(post) {
         <div class="post-date">${new Date(post.created_at).toLocaleString()}</div>
         <div class="post-content">${post.content}</div>
         <button class="like-button" data-post-id="${post.id}">👍 ${post.likes_count ? post.likes_count[0].count : 0}</button>
-        <button class="view-details-button" data-post-id="${post.id}">Ver Detalhes</button>
+        <button class="comments-toggle-button" data-post-id="${post.id}">Mostrar Comentários</button>
+        <div class="comments-section" id="commentsSection-${post.id}" style="display: none;"></div>
     `;
     return div;
 }
 
-async function loadPostDetails(postId) {
+async function loadPostComments(postId) {
     try {
         const { data, error } = await supabaseClient
-            .from('posts')
-            .select('*, likes_count:likes(count), comments(*)')
-            .eq('id', postId)
-            .single();
+            .from('comments')
+            .select('*')
+            .eq('post_id', postId);
 
         if (error) throw error;
 
-        postDetails.innerHTML = `
-            <h2>${data.author_name}</h2>
-            <p>${data.content}</p>
-            <p><strong>Likes:</strong> ${data.likes_count || 0}</p>
+        const commentsSection = document.getElementById(`commentsSection-${postId}`);
+        commentsSection.innerHTML = `
             <h3>Comentários:</h3>
-            <div class="comments-list" id="commentsList-${data.id}"></div>
-            <button class="toggle-comments" data-post-id="${data.id}">Mostrar Comentários</button>
-            <form class="comment-form" data-post-id="${data.id}">
+            <div class="comments-list" id="commentsList-${postId}"></div>
+            <form class="comment-form" data-post-id="${postId}">
+                <input type="text" placeholder="Seu nome" required>
                 <input type="text" placeholder="Seu comentário" required>
                 <button type="submit">Comentar</button>
             </form>
         `;
-        loadComments(data.comments);
-        postDetails.style.display = 'block';
+        loadComments(data, postId);
+        commentsSection.style.display = 'block';
     } catch (error) {
-        console.error('Erro ao carregar detalhes do post:', error);
+        console.error('Erro ao carregar comentários do post:', error);
         showAlert('error');
     }
 }
 
-function loadComments(comments) {
-    const commentsList = document.getElementById(`commentsList-${comments[0]?.post_id}`);
+function loadComments(comments, postId) {
+    const commentsList = document.getElementById(`commentsList-${postId}`);
     if (!commentsList) return;
     commentsList.innerHTML = '';
     comments.forEach(comment => {
@@ -176,9 +174,16 @@ postForm.addEventListener('submit', async (event) => {
 });
 
 postsList.addEventListener('click', (event) => {
-    if (event.target.classList.contains('view-details-button')) {
+    if (event.target.classList.contains('comments-toggle-button')) {
         const postId = event.target.getAttribute('data-post-id');
-        loadPostDetails(postId);
+        const commentsSection = document.getElementById(`commentsSection-${postId}`);
+        if (commentsSection.style.display === 'none' || commentsSection.style.display === '') {
+            loadPostComments(postId);
+            event.target.textContent = 'Ocultar Comentários';
+        } else {
+            commentsSection.style.display = 'none';
+            event.target.textContent = 'Mostrar Comentários';
+        }
     }
 });
 
@@ -215,36 +220,33 @@ document.addEventListener('submit', async (event) => {
     if (event.target.classList.contains('comment-form')) {
         event.preventDefault();
         const postId = event.target.getAttribute('data-post-id');
-        const commentInput = event.target.querySelector('input[type="text"]');
+        
+        // Acessando os campos de entrada de forma mais robusta
+        const nameInput = event.target.querySelector('input[placeholder="Seu nome"]');
+        const commentInput = event.target.querySelector('input[placeholder="Seu comentário"]');
+        
+        if (!nameInput || !commentInput) {
+            console.error('Campos de entrada não encontrados.');
+            return;
+        }
+
+        const authorName = nameInput.value;
         const commentContent = commentInput.value;
 
         try {
             const { error } = await supabaseClient
                 .from('comments')
-                .insert([{ post_id: postId, author_name: 'user_name_placeholder', content: commentContent }]); 
+                .insert([{ post_id: postId, author_name: authorName, content: commentContent }]); 
 
             if (error) throw error;
 
             showAlert('success');
-            loadPostDetails(postId);
+            loadPostComments(postId);
+            nameInput.value = '';
             commentInput.value = '';
         } catch (error) {
             console.error('Erro ao enviar comentário:', error);
             showAlert('error');
-        }
-    }
-});
-
-document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('toggle-comments')) {
-        const postId = event.target.getAttribute('data-post-id');
-        const commentsList = document.getElementById(`commentsList-${postId}`);
-        if (commentsList.style.display === 'none' || commentsList.style.display === '') {
-            commentsList.style.display = 'block';
-            event.target.textContent = 'Ocultar Comentários';
-        } else {
-            commentsList.style.display = 'none';
-            event.target.textContent = 'Mostrar Comentários';
         }
     }
 });
