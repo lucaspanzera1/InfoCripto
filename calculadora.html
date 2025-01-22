@@ -201,14 +201,13 @@
         </script>
         <div class="container">
             <div class="tabs">
-                <div class="tab active">Convert</div>
-                <div class="tab inactive">Sell</div>
+                <div class="tab active">Converter</div>
             </div>
             <div class="input-group">
-                <span>From</span>
-                <input type="number" id="from-amount" placeholder="Amount" />
+                <span>De</span>
+                <input type="number" id="from-amount" placeholder="Quantia" />
                 <div class="currency" onclick="toggleDropdown('from-dropdown')">
-                    <span id="from-currency">Select Currency</span>
+                    <span id="from-currency">Selecione a moeda</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="dropdown" id="from-dropdown"></div>
@@ -216,16 +215,17 @@
             <div class="input-group">
                 <span>To</span>
                 <div class="currency" onclick="toggleDropdown('to-dropdown')">
-                    <span id="to-currency">Select Currency</span>
+                    <span id="to-currency">Selecione a moeda</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="dropdown" id="to-dropdown"></div>
             </div>
             <div class="input-group">
-                <span>Converted Amount</span>
+                <span>Valor convertido</span>
                 <div class="amount" id="converted-amount">0</div>
             </div>
-            <button class="buy-button" onclick="convertCurrency()">Convert</button>
+            <button class="buy-button" onclick="convertCurrency()">Converter</button>
+            <p>Atualização em tempo real com Binance API</p>
         </div>
     </section>
     <script>
@@ -286,7 +286,7 @@ async function convertCurrency() {
     const toCurrency = document.getElementById('to-currency').textContent;
     const amount = document.getElementById('from-amount').value;
 
-    if (fromCurrency === "Select Currency" || toCurrency === "Select Currency" || !amount) {
+    if (fromCurrency === "Selecione a moeda" || toCurrency === "Selecione a moeda" || !amount) {
         alert("Please select both currencies and enter an amount.");
         return;
     }

@@ -247,3 +247,8 @@ button:hover {
     color: #00f7bf;
     margin-top: 10px;
 }
+@media (max-width: 768px) {
+    section{
+        padding: 10vh 2vh;
+    }
+}

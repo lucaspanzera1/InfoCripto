@@ -8,10 +8,10 @@
 section{
     background-color: #0a051e;
     color: white;
-    display: grid;
-    grid-template-columns: 50% 50%;
-    justify-items: center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5vh;
     height: 100vh;
 }
 
@@ -19,7 +19,8 @@ section{
     background-color: #1e1e1e;
     border-radius: 10px;
     padding: 20px;
-    width: 300px;
+    width: 500px;
+    height: 600px;
     position: relative;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
@@ -33,25 +34,21 @@ section{
 .tab {
     flex: 1;
     text-align: center;
-    padding: 10px;
+    padding: 20px;
     cursor: pointer;
     background-color: #2a2a2a;
     border-radius: 10px 10px 0 0;
 }
 
 .tab.active {
-    background-color: #5b61f4; /* Cor do tab ativo */
+    background-color: #5b61f4;
     color: white;
-}
-
-.tab.inactive {
-    color: #6c757d;
 }
 
 .input-group {
     background-color: #2a2a2a;
     border-radius: 10px;
-    padding: 10px;
+    padding: 20px;
     margin-bottom: 20px;
     position: relative;
 }
@@ -71,6 +68,11 @@ section{
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+}
+
+.container p{
+    text-align: center;
+    margin-top: 10px;
 }
 
 .dropdown {
@@ -119,11 +121,11 @@ section{
 }
 
 .buy-button {
-    background-color: #5b61f4; /* Cor do botão */
+    background-color: #5b61f4;
     color: white;
     border: none;
-    border-radius: 50px; /* Bordas arredondadas */
-    padding: 10px;
+    border-radius: 50px;
+    padding: 20px;
     width: 100%;
     cursor: pointer;
     font-size: 16px;
@@ -140,6 +142,18 @@ section{
     border: none;
     border-radius: 5px;
     margin-bottom: 10px;
-    background-color: #2a2a2a; /* Fundo do input */
-    color: white; /* Cor do texto do input */
+    background-color: #2a2a2a; 
+    color: white;
+}
+@media (max-width: 768px) {
+    section{
+       display: flex;
+       flex-direction: column-reverse;
+       height: auto;
+    }
+    .container {
+        margin-top: 10vh;
+        width: 400px;
+        height: auto;
+    }
 }
