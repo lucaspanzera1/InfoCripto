@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel='shorcut icon' href="resources/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="resources/css/styles.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="resources/css/blog.css?v=<?= time() ?>">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo">
+            <img src="resources/img/logo.png" alt="">
+        </a>
+        <div class="nav-links">
+            <a href="/">Ínicio</a>
+            <a href="news.html">Últimas Notícias</a>
+            <a href="mercado.html">Mercado</a>
+            <a href="calculadora.html">Calcular</a>
+            <a href="calculadora.html">Blog</a>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+    </nav>
+
+    <section>
+        <div class="blog-container">
+            <div id="alertSuccess" class="alert alert-success">Mensagem enviada com sucesso!</div>
+            <div id="alertError" class="alert alert-error">Erro ao enviar mensagem.</div>
+            
+            <form class="post-form" id="postForm">
+                <input type="text" id="authorName" placeholder="Seu nome" required>
+                <textarea id="postContent" placeholder="Escreva sua mensagem..." required></textarea>
+                <button type="submit">Publicar</button>
+            </form>
+            <div class="posts-list" id="postsList"></div>
+            <div id="postDetails" class="post-details" style="display: none;"></div>
+        </div>
+    </section>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseClient = supabase.createClient(
+            'https://wmlbhtuvycrgfzoonwvp.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtbGJodHV2eWNyZ2Z6b29ud3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1MDgzODYsImV4cCI6MjA1MzA4NDM4Nn0.zMLUjlZTIeUcltZXe2GHYXkwT5qJah_A1GmRzuF9t7A'
+        );
+
+const postForm = document.getElementById('postForm');
+const postsList = document.getElementById('postsList');
+const alertSuccess = document.getElementById('alertSuccess');
+const alertError = document.getElementById('alertError');
+const postDetails = document.getElementById('postDetails');
+
+function showAlert(type, duration = 3000) {
+    const alert = type === 'success' ? alertSuccess : alertError;
+    alert.style.display = 'block';
+    setTimeout(() => {
+        alert.style.display = 'none';
+    }, duration);
+}
+
+async function loadPosts() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('posts')
+            .select('*, likes_count:likes(count), comments(*)')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        postsList.innerHTML = '';
+        data.forEach(post => {
+            const postElement = createPostElement(post);
+            postsList.appendChild(postElement);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar posts:', error);
+        showAlert('error');
+    }
+}
+
+function createPostElement(post) {
+    const div = document.createElement('div');
+    div.className = 'post';
+    div.innerHTML = `
+        <div class="post-author">${post.author_name}</div>
+        <div class="post-date">${new Date(post.created_at).toLocaleString()}</div>
+        <div class="post-content">${post.content}</div>
+        <button class="like-button" data-post-id="${post.id}">👍 ${post.likes_count ? post.likes_count[0].count : 0}</button>
+        <button class="view-details-button" data-post-id="${post.id}">Ver Detalhes</button>
+    `;
+    return div;
+}
+
+async function loadPostDetails(postId) {
+    try {
+        const { data, error } = await supabaseClient
+            .from('posts')
+            .select('*, likes_count:likes(count), comments(*)')
+            .eq('id', postId)
+            .single();
+
+        if (error) throw error;
+
+        postDetails.innerHTML = `
+            <h2>${data.author_name}</h2>
+            <p>${data.content}</p>
+            <p><strong>Likes:</strong> ${data.likes_count || 0}</p>
+            <h3>Comentários:</h3>
+            <div class="comments-list" id="commentsList-${data.id}"></div>
+            <button class="toggle-comments" data-post-id="${data.id}">Mostrar Comentários</button>
+            <form class="comment-form" data-post-id="${data.id}">
+                <input type="text" placeholder="Seu comentário" required>
+                <button type="submit">Comentar</button>
+            </form>
+        `;
+        loadComments(data.comments);
+        postDetails.style.display = 'block';
+    } catch (error) {
+        console.error('Erro ao carregar detalhes do post:', error);
+        showAlert('error');
+    }
+}
+
+function loadComments(comments) {
+    const commentsList = document.getElementById(`commentsList-${comments[0]?.post_id}`);
+    if (!commentsList) return;
+    commentsList.innerHTML = '';
+    comments.forEach(comment => {
+        const commentElement = document.createElement('div');
+        commentElement.innerHTML = `<strong>${comment.author_name}</strong>: ${comment.content}`;
+        commentsList.appendChild(commentElement);
+    });
+}
+
+postForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const authorName = document.getElementById('authorName').value;
+    const postContent = document.getElementById('postContent').value;
+
+    try {
+        const { error } = await supabaseClient
+            .from('posts')
+            .insert([{ author_name: authorName, content: postContent }]);
+
+        if (error) throw error;
+
+        showAlert('success');
+        loadPosts();
+        postForm.reset();
+    } catch (error) {
+        console.error('Erro ao enviar post:', error);
+        showAlert('error');
+    }
+});
+
+postsList.addEventListener('click', (event) => {
+    if (event.target.classList.contains('view-details-button')) {
+        const postId = event.target.getAttribute('data-post-id');
+        loadPostDetails(postId);
+    }
+});
+
+postsList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('like-button')) {
+        const postId = event.target.getAttribute('data-post-id');
+
+        const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || [];
+        if (likedPosts.includes(postId)) {
+            showAlert('error');
+            return;
+        }
+
+        try {
+            const { error } = await supabaseClient
+                .from('likes')
+                .insert([{ post_id: postId, user_id: 'user_id_placeholder' }]);
+
+            if (error) throw error;
+
+            likedPosts.push(postId);
+            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+
+            showAlert('success');
+            loadPosts();
+        } catch (error) {
+            console.error('Erro ao curtir post:', error);
+            showAlert('error');
+        }
+    }
+});
+
+document.addEventListener('submit', async (event) => {
+    if (event.target.classList.contains('comment-form')) {
+        event.preventDefault();
+        const postId = event.target.getAttribute('data-post-id');
+        const commentInput = event.target.querySelector('input[type="text"]');
+        const commentContent = commentInput.value;
+
+        try {
+            const { error } = await supabaseClient
+                .from('comments')
+                .insert([{ post_id: postId, author_name: 'user_name_placeholder', content: commentContent }]); 
+
+            if (error) throw error;
+
+            showAlert('success');
+            loadPostDetails(postId);
+            commentInput.value = '';
+        } catch (error) {
+            console.error('Erro ao enviar comentário:', error);
+            showAlert('error');
+        }
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('toggle-comments')) {
+        const postId = event.target.getAttribute('data-post-id');
+        const commentsList = document.getElementById(`commentsList-${postId}`);
+        if (commentsList.style.display === 'none' || commentsList.style.display === '') {
+            commentsList.style.display = 'block';
+            event.target.textContent = 'Ocultar Comentários';
+        } else {
+            commentsList.style.display = 'none';
+            event.target.textContent = 'Mostrar Comentários';
+        }
+    }
+});
+
+loadPosts();
+    </script>
+</body>
+</html>
