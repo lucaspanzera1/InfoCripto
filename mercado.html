@@ -15,7 +15,7 @@
             <img src="resources/img/logo.png" alt="">
         </a>
         <div class="nav-links">
-            <a href="/">Ínicio</a>
+            <a href="/">Início</a>
             <a href="news.html">Últimas Notícias</a>
             <a href="mercado.html">Mercado</a>
             <a href="calculadora.html">Calcular</a>
@@ -27,10 +27,11 @@
             <div class="line"></div>
         </div>
     </nav>
+
     <div class="containerCripto">
         <div class="header">
             <h2>Mercado de Criptomoedas</h2>
-            <div>Atualização em tempo real</div>
+            <input type="text" id="searchInput" placeholder="Pesquisar criptomoedas...">
         </div>
         <div id="cryptoGrid" class="crypto-grid">
             <div class="loading">Conectando ao servidor...</div>
@@ -39,40 +40,17 @@
 
     <script>
         const TRADING_PAIRS = [
-            'BTCUSDT',
-            'ETHUSDT',
-            'BNBUSDT',
-            'ADAUSDT',
-            'SOLUSDT',
-            'XRPUSDT',
-            'LTCUSDT',
-            'DOTUSDT',
-            'LINKUSDT',
-            'MATICUSDT',
-            'AVAXUSDT',
-            'DOGEUSDT',
-            'SHIBUSDT',
-            'TRXUSDT',
-            'BCHUSDT',
-            'ETCUSDT',
-            'FILUSDT',
-            'VETUSDT',
-            'ALGOUSDT',
-            'ICPUSDT',
-            'FTMUSDT',
-            'SANDUSDT',
-            'AAVEUSDT',
-            'CRVUSDT',
-            'XLMUSDT',
-            'ZRXUSDT',
-            'BATUSDT',
-            'HBARUSDT',
-            'NEARUSDT',
-            'KSMUSDT',
+            'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT',
+            'XRPUSDT', 'LTCUSDT', 'DOTUSDT', 'LINKUSDT', 'MATICUSDT',
+            'AVAXUSDT', 'DOGEUSDT', 'SHIBUSDT', 'TRXUSDT', 'BCHUSDT',
+            'ETCUSDT', 'FILUSDT', 'VETUSDT', 'ALGOUSDT', 'ICPUSDT',
+            'FTMUSDT', 'SANDUSDT', 'AAVEUSDT', 'CRVUSDT', 'XLMUSDT',
+            'ZRXUSDT', 'BATUSDT', 'HBARUSDT', 'NEARUSDT', 'KSMUSDT',
             'QTUMUSDT'
         ];
 
         const cryptoData = {};
+        let searchTimeout;
 
         function formatPrice(price) {
             return new Intl.NumberFormat('en-US', {
@@ -87,11 +65,30 @@
             return change > 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`;
         }
 
-        function updateUI() {
+        function filterCryptos() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchInput = document.getElementById('searchInput').value.toLowerCase();
+                const filteredPairs = TRADING_PAIRS.filter(symbol => {
+                    const base = symbol.replace('USDT', '').toLowerCase();
+                    return base.includes(searchInput);
+                });
+
+                if (filteredPairs.length === 0) {
+                    document.getElementById('cryptoGrid').innerHTML = `
+                        <div class="no-results">Nenhuma criptomoeda encontrada</div>
+                    `;
+                } else {
+                    updateUI(filteredPairs);
+                }
+            }, 300);
+        }
+
+        function updateUI(pairs = TRADING_PAIRS) {
             const grid = document.getElementById('cryptoGrid');
             grid.innerHTML = '';
 
-            TRADING_PAIRS.forEach(symbol => {
+            pairs.forEach(symbol => {
                 const data = cryptoData[symbol];
                 if (!data) return;
 
@@ -101,23 +98,23 @@
                 const changeClass = data.priceChange >= 0 ? 'change-positive' : 'change-negative';
                 
                 card.innerHTML = `
-    <a href="detalhes.html?symbol=${symbol}" class="crypto-card-link" target="_blank">
-        <div class="crypto-name">
-            ${symbol.replace('USDT', '')}
-            <span class="symbol">USDT</span>
-        </div>
-        <div class="price">${formatPrice(data.lastPrice)}</div>
-        <div class="${changeClass}">
-            ${formatChange(data.priceChange)}
-        </div>
-        <div class="stats">
-            <div>Volume: ${formatPrice(data.volume)}</div>
-            <div>High: ${formatPrice(data.high)}</div>
-            <div>Low: ${formatPrice(data.low)}</div>
-            <div>Trades: ${data.trades.toLocaleString()}</div>
-        </div>
-    </a>
-`;
+                    <a href="detalhes.html?symbol=${symbol}" class="crypto-card-link">
+                        <div class="crypto-name">
+                            ${symbol.replace('USDT', '')}
+                            <span class="symbol">USDT</span>
+                        </div>
+                        <div class="price">${formatPrice(data.lastPrice)}</div>
+                        <div class="${changeClass}">
+                            ${formatChange(data.priceChange)}
+                        </div>
+                        <div class="stats">
+                            <div>Volume: ${formatPrice(data.volume)}</div>
+                            <div>High: ${formatPrice(data.high)}</div>
+                            <div>Low: ${formatPrice(data.low)}</div>
+                            <div>Trades: ${data.trades.toLocaleString()}</div>
+                        </div>
+                    </a>
+                `;
 
                 grid.appendChild(card);
             });
@@ -145,11 +142,8 @@
                 initializeWebSocket();
 
             } catch (error) {
-                console.error('Erro ao carregar dados iniciais:', error);
                 document.getElementById('cryptoGrid').innerHTML = `
-                    <div class="error">
-                        Erro ao carregar dados. Por favor, recarregue a página.
-                    </div>
+                    <div class="error">Erro ao carregar dados. Por favor, recarregue a página.</div>
                 `;
             }
         }
@@ -175,7 +169,13 @@
                         trades: parseInt(data.n)
                     };
 
-                    updateUI();
+                    const currentSearch = document.getElementById('searchInput').value.toLowerCase();
+                    const shouldShow = symbol.toLowerCase().replace('usdt', '').includes(currentSearch);
+                    if (!currentSearch || shouldShow) {
+                        updateUI(TRADING_PAIRS.filter(s => 
+                            s.toLowerCase().replace('usdt', '').includes(currentSearch)
+                        ));
+                    }
                 }
             };
 
@@ -184,11 +184,11 @@
             };
 
             ws.onclose = () => {
-                console.log('WebSocket connection closed. Attempting to reconnect...');
                 setTimeout(initializeWebSocket, 5000);
             };
         }
 
+        document.getElementById('searchInput').addEventListener('input', filterCryptos);
         initializeData();
     </script>
     <script src="resources/js/hamburguer.js"></script>
