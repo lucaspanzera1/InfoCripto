@@ -178,7 +178,9 @@ body {
     .nav-links {
         display: none;
     }
-
+    .logo img {
+        width: 100px;
+    }
     .hero h1 {
         font-size: 2.5rem;
     }

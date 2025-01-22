@@ -8,10 +8,10 @@
 section{
     background-color: #0a051e;
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    justify-items: center;
+    align-items:center;
     height: 100vh;
 }
 
