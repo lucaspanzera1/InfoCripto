@@ -9,8 +9,9 @@ section{
     background-color: #0a051e;
     color: white;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    gap: 20px;
     height: 100vh;
 }
 
