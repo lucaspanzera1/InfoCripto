@@ -39,48 +39,51 @@
     </div>
 
     <script>
-        const apiKey = 'e83185db30854df4b164fb6e3bacfb06'; 
-        const fromDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; 
-const toDate = new Date().toISOString().split('T')[0];
+       async function fetchCryptoNews() {
+            const apiKey = '5ac3c7f4fb092ac7ad8cecffbd0fa143287d7ce9b85f2f38934b20644a77674f'; // Substitua com sua chave
+            const url = `https://min-api.cryptocompare.com/data/v2/news/?lang=PT&api_key=${apiKey}`;
+            
+            const newsContainer = document.getElementById('news-container');
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error');
 
-const url = `https://newsapi.org/v2/everything?q=crypto OR bitcoin OR ethereum&language=pt&from=${fromDate}&to=${toDate}&sortBy=publishedAt&apiKey=${apiKey}`;
-fetch(url, {
-    headers: {
-        'User-Agent': 'YourAppName/1.0'
-    }
-})
-.then(response => {
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-})
-.then(data => {
-    const newsContainer = document.getElementById('news-container');
-    newsContainer.innerHTML = ''; // Limpa container antes
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Falha ao buscar notícias');
+                }
 
-    if (data.articles && data.articles.length > 0) {
-        data.articles.forEach(article => {
-            const newsItem = document.createElement('div');
-            newsItem.classList.add('news-item');
-            newsItem.innerHTML = `
-                <h2><a href="${article.url}" target="_blank">${article.title || 'Sem título'}</a></h2>
-                <p>${article.description || 'Sem descrição'}</p>
-                <p><strong>Fonte:</strong> ${article.source?.name || 'Desconhecida'}</p>
-                <p><strong>Data:</strong> ${article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Data não disponível'}</p>
-            `;
-            newsContainer.appendChild(newsItem);
-        });
-    } else {
-        document.getElementById('error').style.display = 'block';
-        document.getElementById('error').textContent = 'Nenhuma notícia encontrada';
-    }
-})
-.catch(error => {
-    console.error('Erro ao buscar notícias:', error);
-    document.getElementById('error').style.display = 'block';
-    document.getElementById('loading').style.display = 'none';
-});
+                const data = await response.json();
+                
+                loadingElement.style.display = 'none';
+                newsContainer.innerHTML = ''; 
+
+                if (data.Data && data.Data.length > 0) {
+                    data.Data.slice(0, 10).forEach(article => {
+                        const newsItem = document.createElement('div');
+                        newsItem.classList.add('news-item');
+                        newsItem.innerHTML = `
+                            <h2><a href="${article.url}" target="_blank">${article.title || 'Sem título'}</a></h2>
+                            <p>${article.body || 'Sem descrição'}</p>
+                            <p><strong>Fonte:</strong> ${article.source || 'Desconhecida'}</p>
+                            <p><strong>Data:</strong> ${new Date(article.published_on * 1000).toLocaleDateString() || 'Data não disponível'}</p>
+                        `;
+                        newsContainer.appendChild(newsItem);
+                    });
+                } else {
+                    errorElement.style.display = 'block';
+                    errorElement.textContent = 'Nenhuma notícia encontrada';
+                }
+            } catch (error) {
+                console.error('Erro ao buscar notícias:', error);
+                loadingElement.style.display = 'none';
+                errorElement.style.display = 'block';
+                errorElement.textContent = 'Erro ao carregar notícias. Tente novamente mais tarde.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchCryptoNews);
     </script>
         <footer class="footer">
             <div class="footer-content">
