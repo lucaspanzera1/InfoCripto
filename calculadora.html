@@ -213,7 +213,7 @@
                 <div class="dropdown" id="from-dropdown"></div>
             </div>
             <div class="input-group">
-                <span>To</span>
+                <span>Para</span>
                 <div class="currency" onclick="toggleDropdown('to-dropdown')">
                     <span id="to-currency">Selecione a moeda</span>
                     <i class="fas fa-chevron-down"></i>
@@ -237,7 +237,6 @@
     const fromDropdown = document.getElementById('from-dropdown');
     const toDropdown = document.getElementById('to-dropdown');
 
-    // Lista de moedas que você deseja exibir
     const desiredCoins = [
         'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT',
         'XRPUSDT', 'LTCUSDT', 'DOTUSDT', 'LINKUSDT', 'MATICUSDT',
@@ -248,22 +247,18 @@
         'QTUMUSDT'
     ];
 
-    // Filtra os símbolos para incluir apenas os desejados
     const filteredSymbols = symbols.filter(symbol => desiredCoins.includes(symbol.symbol));
 
-    // Usar um Set para evitar duplicatas
     const uniqueCoins = new Set();
 
     filteredSymbols.forEach(symbol => {
         const baseAsset = symbol.baseAsset;
         const quoteAsset = symbol.quoteAsset;
 
-        // Adiciona as moedas ao Set
         uniqueCoins.add(baseAsset);
         uniqueCoins.add(quoteAsset);
     });
 
-    // Adiciona as moedas únicas ao dropdown
     uniqueCoins.forEach(coin => {
         fromDropdown.innerHTML += `<a href="#" onclick="selectCoin('${coin}', 'from')">${coin}</a>`;
         toDropdown.innerHTML += `<a href="#" onclick="selectCoin('${coin}', 'to')">${coin}</a>`;
@@ -277,8 +272,8 @@ function toggleDropdown(id) {
 
 function selectCoin(coin, type) {
     const currencyElement = type === 'from' ? document.getElementById('from-currency') : document.getElementById('to-currency');
-    currencyElement.textContent = coin; // Atualiza o texto da moeda selecionada
-    toggleDropdown(type === 'from' ? 'from-dropdown' : 'to-dropdown'); // Fecha o dropdown
+    currencyElement.textContent = coin; 
+    toggleDropdown(type === 'from' ? 'from-dropdown' : 'to-dropdown');
 }
 
 async function convertCurrency() {
@@ -291,22 +286,68 @@ async function convertCurrency() {
         return;
     }
 
-    // Verifica se o par de moedas está disponível
     const pair = `${fromCurrency}${toCurrency}`;
     const priceResponse = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${pair}`);
     const priceData = await priceResponse.json();
 
     if (priceData.price) {
         const convertedAmount = (amount * priceData.price).toFixed(2);
-        document.getElementById('converted-amount').textContent = convertedAmount; // Atualiza o valor convertido
+        document.getElementById('converted-amount').textContent = convertedAmount;
     } else {
         alert("Conversion pair not available or error fetching conversion rate.");
     }
 }
 
-// Fetch coins on page load
 fetchCoins();
     </script>
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="resources/img/logo.png" alt="InfoCripto Logo" class="footer-logo">
+                    <p class="footer-description">Sua fonte confiável para informações sobre criptomoedas, análises de mercado e últimas notícias do mundo crypto.</p>
+                    <div class="social-links">
+                        <a href="https://www.youtube.com/@1lucaspanzera" class="social-link" target="_blank">GitHub</a>
+                        <a href="https://github.com/lucaspanzera1/InfoCripto" class="social-link" target="_blank">Youtube</a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="/">Início</a></li>
+                        <li><a href="news.html">Últimas Notícias</a></li>
+                        <li><a href="mercado.html">Mercado</a></li>
+                        <li><a href="calculadora.html">Calculadora</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Recursos</h3>
+                    <ul>
+                        <li><a href="#" target="_blank">FAQ</a></li>
+                        <li><a href="https://lucaspanzera.vercel.app" target="_blank">By <b>Lucas Panzera</b></a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Newsletter</h3>
+                    <p>Receba as últimas atualizações do mercado</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Seu email" required>
+                        <button type="submit" class="btn btn-primary">Inscrever</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 InfoCripto. Todos os direitos reservados.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Termos de Uso</a>
+                    <a href="#">Política de Privacidade</a>
+                </div>
+            </div>
+        </footer>
     <script src="resources/js/hamburguer.js"></script>
 </body>
 </html>
