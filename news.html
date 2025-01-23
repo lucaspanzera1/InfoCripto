@@ -40,8 +40,9 @@
 
     <script>
        async function fetchCryptoNews() {
-            const apiKey = '5ac3c7f4fb092ac7ad8cecffbd0fa143287d7ce9b85f2f38934b20644a77674f'; // Substitua com sua chave
-            const url = `https://min-api.cryptocompare.com/data/v2/news/?lang=PT&api_key=${apiKey}`;
+            const corsProxy = 'https://api.allorigins.win/raw?url=';
+            const coinTeleRSS = 'https://cointelegraph.com/rss/tag/bitcoin';
+            const url = corsProxy + encodeURIComponent(coinTeleRSS);
             
             const newsContainer = document.getElementById('news-container');
             const loadingElement = document.getElementById('loading');
@@ -54,20 +55,27 @@
                     throw new Error('Falha ao buscar notícias');
                 }
 
-                const data = await response.json();
+                const text = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(text, 'text/xml');
+                const items = xmlDoc.querySelectorAll('item');
                 
                 loadingElement.style.display = 'none';
                 newsContainer.innerHTML = ''; 
 
-                if (data.Data && data.Data.length > 0) {
-                    data.Data.slice(0, 10).forEach(article => {
+                if (items.length > 0) {
+                    Array.from(items).slice(0, 10).forEach(item => {
+                        const title = item.querySelector('title')?.textContent || 'Sem título';
+                        const link = item.querySelector('link')?.textContent || '#';
+                        const description = item.querySelector('description')?.textContent.replace(/<[^>]*>/g, '') || 'Sem descrição';
+                        const pubDate = item.querySelector('pubDate')?.textContent || 'Data não disponível';
+
                         const newsItem = document.createElement('div');
                         newsItem.classList.add('news-item');
                         newsItem.innerHTML = `
-                            <h2><a href="${article.url}" target="_blank">${article.title || 'Sem título'}</a></h2>
-                            <p>${article.body || 'Sem descrição'}</p>
-                            <p><strong>Fonte:</strong> ${article.source || 'Desconhecida'}</p>
-                            <p><strong>Data:</strong> ${new Date(article.published_on * 1000).toLocaleDateString() || 'Data não disponível'}</p>
+                            <h2><a href="${link}" target="_blank">${title}</a></h2>
+                            <p>${description}</p>
+                            <p><strong>Data:</strong> ${new Date(pubDate).toLocaleDateString() || 'Data não disponível'}</p>
                         `;
                         newsContainer.appendChild(newsItem);
                     });
