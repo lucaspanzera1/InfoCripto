@@ -231,6 +231,9 @@ button {
     cursor: pointer;
     transition: background-color 0.3s;
 }
+button:hover {
+    background-color: rgba(91, 97, 244, 1);
+}
 
 @media (max-width: 1024px) {
     .footer-content {
